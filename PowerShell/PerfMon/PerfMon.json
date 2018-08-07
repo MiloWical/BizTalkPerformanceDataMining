@@ -1,0 +1,721 @@
+{
+  "Hosts":  
+  [
+    "#BizTalk Server Host#"
+  ], 
+  "Views": 
+  [
+    {
+      "Name": "System",
+      "Counters":
+      [
+        {
+          "Category": "Processor",
+          "Counter": "% Processor Time",
+          "Instances": 
+          [
+            "_Total"
+          ]
+        },
+        {
+          "Category": "Memory",
+          "Counter": "Available MBytes",
+          "Instances": null
+        },
+        {
+          "Category": "Memory",
+          "Counter": "Committed Bytes",
+          "Instances": null
+        },
+        {
+          "Category": "TCPv4",
+          "Counter": "Connection Failures",
+          "Instances": null
+        }
+      ]
+    },
+    {
+      "Name": "BizTalk Processes",
+      "Counters": 
+      [
+        {
+          "Category": "Process",
+          "Counter": "% Processor Time",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"            
+          ]
+        },
+        {
+          "Category": "Process",
+          "Counter": "ID Process",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"
+          ]
+        },
+        {
+          "Category": "Process",
+          "Counter": "Private Bytes",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"
+          ]
+        },
+        {
+          "Category": "Process",
+          "Counter": "Working Set",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "MsgBox Database",
+      "Counters": 
+      [
+        {
+          "Category": "BizTalk:Message Box:General Counters",
+          "Counter": "Spool Size",
+          "Instances": 
+          [
+            "biztalkmsgboxdb:#BizTalk DB Host#"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Box:General Counters",
+          "Counter": "Tracking Data Size",
+          "Instances": 
+          [
+            "biztalkmsgboxdb:#BizTalk DB Host#"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Box:General Counters",
+          "Counter": "Instances - Total Number",
+          "Instances": 
+          [
+            "biztalkmsgboxdb:#BizTalk DB Host#"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Box:Host Counters",
+          "Counter": "Host Queue - Length",
+          "Instances": 
+          [
+            "orchestrationhost:biztalkmsgboxdb:#BizTalk DB Host#",
+            "receivehost:biztalkmsgboxdb:#BizTalk DB Host#",
+            "biztalkserverapplication:biztalkmsgboxdb:#BizTalk DB Host#",
+            "dynamicsendhandlerhost:biztalkmsgboxdb:#BizTalk DB Host#"
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Box:Host Counters",
+          "Counter": "Host Queue - Suspended Msgs - Length",
+          "Instances": 
+          [
+            "orchestrationhost:biztalkmsgboxdb:#BizTalk DB Host#",
+            "receivehost:biztalkmsgboxdb:#BizTalk DB Host#",
+            "biztalkserverapplication:biztalkmsgboxdb:#BizTalk DB Host#",
+            "dynamicsendhandlerhost:biztalkmsgboxdb:#BizTalk DB Host#"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Documents Statistics",
+      "Counters": 
+      [
+        {
+          "Category": "BizTalk:Messaging",
+          "Counter": "Documents processed/Sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Messaging",
+          "Counter": "Documents received/Sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Messaging",
+          "Counter": "Documents suspended/Sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "High Load scenario",
+      "Counters": 
+      [
+        {
+          "Category": "Processor",
+          "Counter": "% Processor Time",
+          "Instances": 
+          [
+            "_Total"           
+          ]
+        },
+        {
+          "Category": "Process",
+          "Counter": "% Processor Time",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"            
+          ]
+        },
+        {
+          "Category": "Process",
+          "Counter": "ID Process",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Box:General Counters",
+          "Counter": "Spool Size",
+          "Instances": 
+          [
+            "biztalkmsgboxdb:#BizTalk DB Host#"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Messaging",
+          "Counter": "Documents processed/Sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Messaging",
+          "Counter": "Documents received/Sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Messaging",
+          "Counter": "Documents suspended/Sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "High Memory scenario",
+      "Counters": 
+      [
+        {
+          "Category": "Memory",
+          "Counter": "Available MBytes",
+          "Instances": null
+        },
+        {
+          "Category": "Memory",
+          "Counter": "Committed Bytes",
+          "Instances": null
+        },
+        {
+          "Category": "Process",
+          "Counter": "ID Process",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"
+          ]
+        },
+        {
+          "Category": "Process",
+          "Counter": "Private Bytes",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"
+          ]
+        },
+        {
+          "Category": "Process",
+          "Counter": "Working Set",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"
+          ]
+        },
+        {
+          "Category": ".NET CLR Memory",
+          "Counter": "# Bytes in all Heaps",
+          "Instances": 
+          [
+            "BTSNTSvc",
+            "BTSNTSvc#1",
+            "BTSNTSvc#2",
+            "BTSNTSvc#3"
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High process memory",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "Process memory usage (MB)",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Megabytes allocated virtual memory",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations resident in-memory",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Running orchestrations",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Box:General Counters",
+          "Counter": "Spool Size",
+          "Instances": 
+          [
+            "biztalkmsgboxdb:#BizTalk DB Host#"            
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Throttlings scenario",
+      "Counters": 
+      [
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "Message delivery throttling state duration",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "Message publishing throttling state",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "Message publishing throttling state duration",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "Message delivery throttling state",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High database session",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High database size",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High in-process message count",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High message delivery rate",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High message publishing rate",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High process memory",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High system memory",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "BizTalk:Message Agent",
+          "Counter": "High thread count",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Orchestration Performance scenario",
+      "Counters": 
+      [
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "% used physical memory",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Megabytes allocated virtual memory",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Pending messages",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Idle orchestrations",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations resident in-memory",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations completed",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations completed/sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations created",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations created/sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations dehydrated",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations dehydrated/sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations discarded",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations discarded/sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations rehydrated",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations rehydrated/sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations suspended",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Orchestrations suspended/sec",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        },
+        {
+          "Category": "XLANG/s Orchestrations",
+          "Counter": "Running orchestrations",
+          "Instances": 
+          [
+            "OrchestrationHost",
+            "ReceiveHost",
+            "BizTalkServerApplication",
+            "DynamicSendHandlerHost"            
+          ]
+        }
+      ]
+    }
+  ]
+}

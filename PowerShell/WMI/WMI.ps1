@@ -28,6 +28,28 @@ function LoadHostWmiProviders($HostName)
         
         $Products = Get-WmiObject win32_product -ErrorAction Stop -ComputerName $HostName
 
+        #Service Instance Mining
+        # Get BizTalk Service Instance Information
+        [ARRAY]$ReadyToRun = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 1)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [ARRAY]$Active = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 2) and not(ServiceClass = 16)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [ARRAY]$Dehydrated = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 8)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [ARRAY]$Breakpoint = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 64)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [ARRAY]$SuspendedOrchs = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 1) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [ARRAY]$SuspendedMessages = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 4) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [ARRAY]$SuspendedRouting = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 64)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [ARRAY]$SuspendedIsolated = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 32) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
+
+        $ServiceInstances = New-Object PSObject
+        $ServiceInstances | Add-Member -type NoteProperty -Name 'ReadyToRun' -Value $ReadyToRun
+        $ServiceInstances | Add-Member -type NoteProperty -Name 'Active' -Value $Active
+        $ServiceInstances | Add-Member -type NoteProperty -Name 'Dehydrated' -Value $Dehydrated
+        $ServiceInstances | Add-Member -type NoteProperty -Name 'Breakpoint' -Value $Breakpoint
+        $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedOrchs' -Value $SuspendedOrchs
+        $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedMessages' -Value $SuspendedMessages
+        $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedRouting' -Value $SuspendedRouting
+        $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedIsolated' -Value $SuspendedIsolated
+
+        #WMI Interface Object
         $BizTalkWmiProvider = New-Object PSObject
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkGroup' -Value $BizTalkGroup
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkMsgBoxDb' -Value $BizTalkMsgBoxDb
@@ -39,6 +61,7 @@ function LoadHostWmiProviders($HostName)
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkDB' -Value $BizTalkDB
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkOM' -Value $BizTalkOM
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'Products' -Value $Products
+        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'ServiceInstances' -Value $ServiceInstances
 
         return $BizTalkWmiProvider;
     }
@@ -145,12 +168,27 @@ function Applications($Wmi)
     }
 }
 
+function ServiceInstances($Wmi)
+{
+    # Display BizTalk Service Instance Information
+Write-Host "`nService Instance Information" -fore DarkGray
+Write-Host "Instances Ready to Run:" $Wmi.ServiceInstances.ReadyToRun.Count
+Write-Host "Active Instances:" $Wmi.ServiceInstances.Active.Count
+Write-Host "Dehydrated Instances:" $Wmi.ServiceInstances.Dehydrated.Count
+Write-Host "Instances in Breakpoint:" $Wmi.ServiceInstances.Breakpoint.Count
+Write-Host "Suspended Orchestrations:" $Wmi.ServiceInstances.SuspendedOrchs.count
+Write-Host "Suspended Messages:" $Wmi.ServiceInstances.SuspendedMessages.count
+Write-Host "Routing Failures:" $Wmi.ServiceInstances.SuspendedRouting.count
+Write-Host "Isolated Adapter Failures:" $Wmi.ServiceInstances.SuspendedIsolated.count
+}
+
 function ProcessConfiguration ($configurationType, $Wmi)
 {
     switch ($configurationType) {
         "ServerDetails" { ServerDetails($Wmi)  }
         "HostInstances" { HostInstances($Wmi)  }
         "Applications" { Applications($Wmi)  }
+        "ServiceInstances" { ServiceInstances($Wmi)  }
         Default { Write-Host "Invalid configuration type: $configurationType" -fore Red}
     } 
 }

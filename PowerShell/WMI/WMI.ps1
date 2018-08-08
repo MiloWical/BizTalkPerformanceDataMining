@@ -15,6 +15,10 @@ function LoadHostWmiProviders($HostName)
         
         $HostInstances = Get-WmiObject MSBTS_HostInstance -namespace root\MicrosoftBizTalkServer -ErrorAction Stop -ComputerName $HostName
         $TrackingHost = Get-WmiObject MSBTS_Host -Namespace root\MicrosoftBizTalkServer -ErrorAction Stop -ComputerName $HostName | Where-Object {$_.HostTracking -eq "true" }
+        
+        Add-Type -Path ".\Microsoft.RuleEngine.dll"
+        Add-Type -Path ".\Microsoft.Biztalk.RuleEngineExtensions.dll"
+        Add-Type -Path ".\Microsoft.BizTalk.ExplorerOM.dll"
         [void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.BizTalk.ExplorerOM")
         $BizTalkDBInstance = $BizTalkGroup.MgmtDbServerName
         $BizTalkDB = $BizTalkGroup.MgmtDbName

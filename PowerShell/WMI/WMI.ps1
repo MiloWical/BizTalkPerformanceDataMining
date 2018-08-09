@@ -51,6 +51,7 @@ function LoadHostWmiProviders()
 
         [Array]$ReceiveLocations = Get-WmiObject MSBTS_ReceiveLocation -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue -ComputerName $HostName
         [Array]$SendPorts = Get-WmiObject MSBTS_SendPort -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$Orchestrations = Get-WmiObject MSBTS_Orchestration -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue -ComputerName $HostName
 
         #WMI Interface Object
         $BizTalkWmiProvider = New-Object PSObject
@@ -67,6 +68,7 @@ function LoadHostWmiProviders()
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'ServiceInstances' -Value $ServiceInstances
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'ReceiveLocations' -Value $ReceiveLocations
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'SendPorts' -Value $SendPorts
+        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'Orchestrations' -Value $Orchestrations
 
         return $BizTalkWmiProvider;
     }
@@ -250,6 +252,29 @@ function SendPorts($Wmi)
     #$Wmi.SendPorts[2] | Select-Object
 }
 
+function Orchestrations($Wmi)
+{
+    Write-Host "`nOrchestrations (" $Wmi.Orchestrations.Count ")" -fore DarkGray
+    
+    If ($Wmi.Orchestrations.Count -gt 0) 
+    { 
+        foreach($Orchestration in $Wmi.Orchestrations)
+        {
+            Write-Host $Orchestration.Name "- " -NoNewline
+
+            If($Orchestration.OrchestrationStatus -eq 4)
+            {
+                Write-Host "Started" -fore Green
+            }
+            Else
+            {
+                Write-Host "Stopped" -fore Red
+            }
+        }
+    }
+    Else { Write-Host "None" }
+}
+
 function ProcessConfiguration ($configurationType, $Wmi)
 {
     switch ($configurationType) {
@@ -259,6 +284,7 @@ function ProcessConfiguration ($configurationType, $Wmi)
         "ServiceInstances" { ServiceInstances($Wmi)  }
         "ReceiveLocations" { ReceiveLocations($Wmi) }
         "SendPorts" { SendPorts($Wmi) }
+        "Orchestrations" { Orchestrations($Wmi) }
         Default { Write-Host "Invalid configuration type: $configurationType" -fore Red}
     } 
 }

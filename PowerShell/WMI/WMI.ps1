@@ -1,4 +1,4 @@
-$Config = Get-Content ".\WMI.config" | ConvertFrom-Json
+$Config = (Get-Content ".\WMI.config") -join "`n" | ConvertFrom-Json
 
 $HostName = [System.String]::Empty;
 
@@ -235,7 +235,7 @@ function SendPorts($Wmi)
             Write-Host "`tAddress: "$SendPort.PTAddress
             Write-Host "`tTransport Type: "$SendPort.PTTransportType
 
-            $SendPortConfigXml = $SendPort.PTCustomCfg | ConvertTo-Xml
+            [Xml]$SendPortConfigXml = $SendPort.PTCustomCfg
     
             $CertificateThumbprint = Select-Xml -Xml $SendPortConfigXml -XPath "/CustomProps/Certificate"
     

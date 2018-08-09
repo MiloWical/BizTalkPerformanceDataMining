@@ -1,5 +1,5 @@
 
-$Config = Get-Content ".\PerfMon.config" | ConvertFrom-Json
+$Config = (Get-Content ".\PerfMon.config") -join "`n" | ConvertFrom-Json
 
 $Tabs = 0;
 

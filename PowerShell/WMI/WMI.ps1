@@ -1,8 +1,8 @@
 $Config = Get-Content ".\WMI.config" | ConvertFrom-Json
 
-$Tabs = 0;
+$HostName = [System.String]::Empty;
 
-function LoadHostWmiProviders($HostName)
+function LoadHostWmiProviders()
 {
     try { # Get BizTalk Information
         $BizTalkGroup = Get-WmiObject MSBTS_GroupSetting -namespace root\MicrosoftBizTalkServer -ErrorAction Stop -ComputerName $HostName
@@ -30,14 +30,14 @@ function LoadHostWmiProviders($HostName)
 
         #Service Instance Mining
         # Get BizTalk Service Instance Information
-        [ARRAY]$ReadyToRun = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 1)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [ARRAY]$Active = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 2) and not(ServiceClass = 16)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [ARRAY]$Dehydrated = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 8)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [ARRAY]$Breakpoint = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 64)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [ARRAY]$SuspendedOrchs = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 1) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [ARRAY]$SuspendedMessages = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 4) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [ARRAY]$SuspendedRouting = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 64)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [ARRAY]$SuspendedIsolated = get-wmiobject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 32) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$ReadyToRun = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 1)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$Active = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 2) and not(ServiceClass = 16)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$Dehydrated = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 8)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$Breakpoint = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 64)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$SuspendedOrchs = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 1) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$SuspendedMessages = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 4) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$SuspendedRouting = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 64)' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$SuspendedIsolated = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 32) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
 
         $ServiceInstances = New-Object PSObject
         $ServiceInstances | Add-Member -type NoteProperty -Name 'ReadyToRun' -Value $ReadyToRun
@@ -48,6 +48,9 @@ function LoadHostWmiProviders($HostName)
         $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedMessages' -Value $SuspendedMessages
         $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedRouting' -Value $SuspendedRouting
         $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedIsolated' -Value $SuspendedIsolated
+
+        [Array]$ReceiveLocations = Get-WmiObject MSBTS_ReceiveLocation -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue -ComputerName $HostName
+        [Array]$SendPorts = Get-WmiObject MSBTS_SendPort -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue -ComputerName $HostName
 
         #WMI Interface Object
         $BizTalkWmiProvider = New-Object PSObject
@@ -62,6 +65,8 @@ function LoadHostWmiProviders($HostName)
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkOM' -Value $BizTalkOM
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'Products' -Value $Products
         $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'ServiceInstances' -Value $ServiceInstances
+        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'ReceiveLocations' -Value $ReceiveLocations
+        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'SendPorts' -Value $SendPorts
 
         return $BizTalkWmiProvider;
     }
@@ -182,6 +187,69 @@ Write-Host "Routing Failures:" $Wmi.ServiceInstances.SuspendedRouting.count
 Write-Host "Isolated Adapter Failures:" $Wmi.ServiceInstances.SuspendedIsolated.count
 }
 
+function ReceiveLocations($Wmi)
+{
+    Write-Host "`nReceive Locations (" $Wmi.ReceiveLocations.Count ")" -fore DarkGray
+    
+    if ($Wmi.ReceiveLocations.Count -gt 0) 
+    { 
+        foreach($ReceiveLocation in $Wmi.ReceiveLocations)
+        {
+            #Uncomment to see all properties
+            #$ReceiveLocation | Select-Object
+
+            Write-Host $ReceiveLocation.Name "- " -NoNewline
+
+            if ($ReceiveLocation.IsDisabled -eq $false) {
+                Write-Host "Enabled" -fore Green
+            }
+            else {
+                Write-Host "Disabled" -fore Red
+            }
+
+            Write-Host "`tHost: "$ReceiveLocation.HostName
+            Write-Host "`tAdapter Name: "$ReceiveLocation.AdapterName
+            Write-Host "`tInbound Transport URL: "$ReceiveLocation.InboundTransportUrl
+        }
+    }
+    else { Write-Host "None" }
+}
+
+function SendPorts($Wmi)
+{
+    Write-Host "`nSend Ports (" $Wmi.SendPorts.Count ")" -fore DarkGray
+    
+    if ($Wmi.SendPorts.Count -gt 0) 
+    { 
+        foreach($SendPort in $Wmi.SendPorts)
+        {
+            Write-Host $SendPort.Name "- " -NoNewline
+            
+            switch($SendPort.Status)
+            {
+                1 { Write-Host "Bound" -fore Yellow }
+                2 { Write-Host "Stopped" -fore Red }
+                3 { Write-Host "Started" -fore Green }
+            }
+    
+            Write-Host "`tAddress: "$SendPort.PTAddress
+            Write-Host "`tTransport Type: "$SendPort.PTTransportType
+
+            $SendPortConfigXml = $SendPort.PTCustomCfg | ConvertTo-Xml
+    
+            $CertificateThumbprint = Select-Xml -Xml $SendPortConfigXml -XPath "/CustomProps/Certificate"
+    
+            If(-not([System.String]::IsNullOrEmpty($CertificateThumbprint)))
+            {
+                Write-Host "`tCertificate Thumbprint: "$CertificateThumbprint
+            }
+        }
+    }
+    else { Write-Host "None" }
+
+    #$Wmi.SendPorts[2] | Select-Object
+}
+
 function ProcessConfiguration ($configurationType, $Wmi)
 {
     switch ($configurationType) {
@@ -189,6 +257,8 @@ function ProcessConfiguration ($configurationType, $Wmi)
         "HostInstances" { HostInstances($Wmi)  }
         "Applications" { Applications($Wmi)  }
         "ServiceInstances" { ServiceInstances($Wmi)  }
+        "ReceiveLocations" { ReceiveLocations($Wmi) }
+        "SendPorts" { SendPorts($Wmi) }
         Default { Write-Host "Invalid configuration type: $configurationType" -fore Red}
     } 
 }

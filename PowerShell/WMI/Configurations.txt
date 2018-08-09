@@ -2,3 +2,5 @@ ServerDetails
 HostInstances
 Applications
 ServiceInstances
+ReceiveLocations
+SendPorts

@@ -262,13 +262,12 @@ function Orchestrations($Wmi)
         {
             Write-Host $Orchestration.Name "- " -NoNewline
 
-            If($Orchestration.OrchestrationStatus -eq 4)
+            Switch($Orchestration.OrchestrationStatus)
             {
-                Write-Host "Started" -fore Green
-            }
-            Else
-            {
-                Write-Host "Stopped" -fore Red
+                1 { Write-Host "Unbound" -fore White }
+                2 { Write-Host "Bound" -fore DarkYellow }
+                3 { Write-Host "Stopped" -fore Red }
+                4 { Write-Host "Started" -fore Green }
             }
         }
     }

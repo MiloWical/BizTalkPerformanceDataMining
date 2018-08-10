@@ -274,6 +274,72 @@ function Orchestrations($Wmi)
     Else { Write-Host "None" }
 }
 
+function MSDTC($Wmi)
+{
+    # Display MSDTC Information
+    Write-Host "`nMSDTC Settings" -fore DarkGray
+
+    $DTC = New-Object PSObject
+
+    $RemoteClientAccessEnabled = (Get-DtcNetworkSetting -DtcName Local).RemoteClientAccessEnabled
+    $DTC | Add-Member -type NoteProperty -Name 'RemoteClientAccessEnabled' -Value $RemoteClientAccessEnabled
+    Write-Host "RemoteClientAccessEnabled:" $RemoteClientAccessEnabled
+    
+    $RemoteAdministrationAccessEnabled = (Get-DtcNetworkSetting -DtcName Local).RemoteAdministrationAccessEnabled
+    $DTC | Add-Member -type NoteProperty -Name 'RemoteAdministrationAccessEnabled' -Value $RemoteAdministrationAccessEnabled
+    Write-Host "RemoteAdministrationAccessEnabled:" $RemoteAdministrationAccessEnabled
+    
+    $InboundTransactionsEnabled = (Get-DtcNetworkSetting -DtcName Local).InboundTransactionsEnabled
+    $DTC | Add-Member -type NoteProperty -Name 'InboundTransactionsEnabled' -Value $InboundTransactionsEnabled
+    Write-Host "InboundTransactionsEnabled:" $InboundTransactionsEnabled
+    
+    $OutboundTransactionsEnabled = (Get-DtcNetworkSetting -DtcName Local).OutboundTransactionsEnabled
+    $DTC | Add-Member -type NoteProperty -Name 'OutboundTransactionsEnabled' -Value $OutboundTransactionsEnabled
+    Write-Host "OutboundTransactionsEnabled:" $OutboundTransactionsEnabled
+    
+    $Authentication = (Get-DtcNetworkSetting -DtcName Local).AuthenticationLevel
+    $DTC | Add-Member -type NoteProperty -Name 'AuthenticationLevel' -Value $AuthenticationLevel
+    Write-Host "Authentication:" $Authentication
+    
+    $XATransactionsEnabled = (Get-DtcNetworkSetting -DtcName Local).XATransactionsEnabled
+    $DTC | Add-Member -type NoteProperty -Name 'XATransactionsEnabled' -Value $XATransactionsEnabled
+    Write-Host "XATransactionsEnabled:" $XATransactionsEnabled
+    
+    $LUTransactionsEnabled = (Get-DtcNetworkSetting -DtcName Local).LUTransactionsEnabled
+    $DTC | Add-Member -type NoteProperty -Name 'LUTransactionsEnabled' -Value $LUTransactionsEnabled
+    Write-Host "LUTransactionsEnabled:" $LUTransactionsEnabled
+
+    $Wmi | Add-Member -type NoteProperty -Name 'DTC' -Value $DTC
+}
+
+function Network($Wmi)
+{
+    Write-Host "`nNetwork Information" -fore Green
+    Write-Host "TCP ports in use:" (netstat -ano -p tcp).Count
+    Write-Host "`nNetwork Connections" -fore DarkGray -NoNewLine
+    Get-NetAdapter | Select-Object Name,Status,LinkSpeed | Format-Table  -AutoSize
+    
+    $NICs = Get-WmiObject -computer localhost win32_networkadapterconfiguration -Filter "ipenabled='true'"
+
+    $Wmi | Add-Member -type NoteProperty -Name 'NICs' -Value $NICs
+
+    Write-Host "IP Address(es):" 
+    $Wmi.NICs.IPAddress
+    
+    foreach ($NIC in $Wmi.NICs ) {
+        Write-Host "`nDescription:" $NIC.Description
+        Write-Host "DHCP Server:" $NIC.DHCPServer
+        Write-Host "Default Gateway:" $NIC.DefaultIPGateway
+        Write-Host "MAC Address:" $NIC.MACAddress
+        Write-Host "NetBIOS over TCP/IP: " -NoNewline
+        switch ($NIC.TcpipNetbiosOptions) {
+            0 { Write-Host "Enabled via DHCP" }
+            1 { Write-Host "Enabled" }
+            2 { Write-Host "Disabled" }
+        }
+    }
+}
+
 function ProcessConfiguration ($configurationType, $Wmi)
 {
     switch ($configurationType) {
@@ -284,6 +350,8 @@ function ProcessConfiguration ($configurationType, $Wmi)
         "ReceiveLocations" { ReceiveLocations($Wmi) }
         "SendPorts" { SendPorts($Wmi) }
         "Orchestrations" { Orchestrations($Wmi) }
+        "MSDTC" { MSDTC($Wmi) }
+        "Network" { Network($Wmi) }
         Default { Write-Host "Invalid configuration type: $configurationType" -fore Red}
     } 
 }

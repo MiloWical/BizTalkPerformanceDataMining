@@ -1,5 +1,8 @@
+Param(
+    [String] $ConfigFileName
+)
 
-$Config = (Get-Content ".\PerfMon.config") -join "`n" | ConvertFrom-Json
+$Config = (Get-Content $ConfigFileName) -join "`n" | ConvertFrom-Json
 
 $Tabs = 0;
 

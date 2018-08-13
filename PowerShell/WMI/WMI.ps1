@@ -1,88 +1,39 @@
-$Config = (Get-Content ".\WMI.config") -join "`n" | ConvertFrom-Json
+Param(
+    [String] $ConfigFileName
+)
 
-$HostName = [System.String]::Empty;
+$Config = (Get-Content $ConfigFileName) -join "`n" | ConvertFrom-Json
 
-function LoadHostWmiProviders()
+function InitializeHostWmiProvider()
 {
     try { # Get BizTalk Information
-        $BizTalkGroup = Get-WmiObject MSBTS_GroupSetting -namespace root\MicrosoftBizTalkServer -ErrorAction Stop -ComputerName $HostName
-        $BizTalkMsgBoxDb = Get-WmiObject MSBTS_MsgBoxSetting -namespace root\MicrosoftBizTalkServer -ErrorAction Stop -ComputerName $HostName
-        $BizTalkServer = Get-WmiObject MSBTS_Server -namespace root\MicrosoftBizTalkServer -ErrorAction Stop -ComputerName $HostName
-               
-        #$registry = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', $HostName).OpenSubKey("SOFTWARE\Microsoft\BizTalk Server\3.0")
-        #$BizTalkREG = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', $HostName).OpenSubKey("SOFTWARE\Microsoft\BizTalk Server\3.0") | Get-ItemProperty -ErrorAction Stop
-        $BizTalkREG = Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\BizTalk Server\3.0' -ErrorAction Stop
-        
-        $HostInstances = Get-WmiObject MSBTS_HostInstance -namespace root\MicrosoftBizTalkServer -ErrorAction Stop -ComputerName $HostName
-        $TrackingHost = Get-WmiObject MSBTS_Host -Namespace root\MicrosoftBizTalkServer -ErrorAction Stop -ComputerName $HostName | Where-Object {$_.HostTracking -eq "true" }        
-
-        Add-Type -Path ".\Microsoft.RuleEngine.dll"
-        Add-Type -Path ".\Microsoft.Biztalk.RuleEngineExtensions.dll"
-        Add-Type -Path ".\Microsoft.BizTalk.ExplorerOM.dll"
-        [void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.BizTalk.ExplorerOM")
-        $BizTalkDBInstance = $BizTalkGroup.MgmtDbServerName
-        $BizTalkDB = $BizTalkGroup.MgmtDbName
-
-        $BizTalkOM = New-Object Microsoft.BizTalk.ExplorerOM.BtsCatalogExplorer
-        $BizTalkOM.ConnectionString = "SERVER=$BizTalkDBInstance;DATABASE=$BizTalkDB;Integrated Security=SSPI"
-        
-        $Products = Get-WmiObject win32_product -ErrorAction Stop -ComputerName $HostName
-
-        #Service Instance Mining
-        # Get BizTalk Service Instance Information
-        [Array]$ReadyToRun = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 1)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$Active = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 2) and not(ServiceClass = 16)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$Dehydrated = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 8)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$Breakpoint = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 64)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$SuspendedOrchs = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 1) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$SuspendedMessages = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 4) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$SuspendedRouting = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 64)' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$SuspendedIsolated = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 32) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue -ComputerName $HostName
-
-        $ServiceInstances = New-Object PSObject
-        $ServiceInstances | Add-Member -type NoteProperty -Name 'ReadyToRun' -Value $ReadyToRun
-        $ServiceInstances | Add-Member -type NoteProperty -Name 'Active' -Value $Active
-        $ServiceInstances | Add-Member -type NoteProperty -Name 'Dehydrated' -Value $Dehydrated
-        $ServiceInstances | Add-Member -type NoteProperty -Name 'Breakpoint' -Value $Breakpoint
-        $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedOrchs' -Value $SuspendedOrchs
-        $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedMessages' -Value $SuspendedMessages
-        $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedRouting' -Value $SuspendedRouting
-        $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedIsolated' -Value $SuspendedIsolated
-
-        [Array]$ReceiveLocations = Get-WmiObject MSBTS_ReceiveLocation -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$SendPorts = Get-WmiObject MSBTS_SendPort -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue -ComputerName $HostName
-        [Array]$Orchestrations = Get-WmiObject MSBTS_Orchestration -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue -ComputerName $HostName
-
         #WMI Interface Object
         $BizTalkWmiProvider = New-Object PSObject
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkGroup' -Value $BizTalkGroup
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkMsgBoxDb' -Value $BizTalkMsgBoxDb
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkServer' -Value $BizTalkServer
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkREG' -Value $BizTalkREG
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'HostInstances' -Value $HostInstances
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'TrackingHost' -Value $TrackingHost
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkDBInstance' -Value $BizTalkDBInstance
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkDB' -Value $BizTalkDB
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkOM' -Value $BizTalkOM
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'Products' -Value $Products
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'ServiceInstances' -Value $ServiceInstances
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'ReceiveLocations' -Value $ReceiveLocations
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'SendPorts' -Value $SendPorts
-        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'Orchestrations' -Value $Orchestrations
+
+        $BizTalkGroup = Get-WmiObject MSBTS_GroupSetting -namespace root\MicrosoftBizTalkServer -ErrorAction Stop 
+        $BizTalkWmiProvider | Add-Member -type NoteProperty -Name 'BizTalkGroup' -Value $BizTalkGroup         
 
         return $BizTalkWmiProvider;
     }
+    #Use this catch block to catch initial WMI issues.
+    #Technically, try/catch should be used everywhere.
     catch {
         Write-Host $_.Exception.Message;
 
         $CurrentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name;
-        Write-Host "${HostName}: BizTalk not detected on this machine, or user ($CurrentUser) not member of BizTalk Administrators group" -fore Red
+        Write-Host "BizTalk not detected on this machine, or user ($CurrentUser) not member of BizTalk Administrators group" -fore Red
         return $null;
     }
 }
 
 function ServerDetails ($Wmi)
 {
+    $BizTalkServer = Get-WmiObject MSBTS_Server -namespace root\MicrosoftBizTalkServer -ErrorAction Stop 
+    $Wmi | Add-Member -type NoteProperty -Name 'BizTalkServer' -Value $BizTalkServer
+
+    $BizTalkREG = Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\BizTalk Server\3.0' -ErrorAction Stop
+    $Wmi | Add-Member -type NoteProperty -Name 'BizTalkREG' -Value $BizTalkREG
+
     Write-Host "`nBizTalk Information" -fore DarkGray
     Write-Host $Wmi.BizTalkREG.ProductName "("$Wmi.BizTalkREG.ProductEdition"Edition )"
     Write-Host "Product Version:" $Wmi.BizTalkREG.ProductVersion
@@ -99,12 +50,19 @@ function ServerDetails ($Wmi)
         0 { Write-Host "Global Tracking: Off" }
         1 { Write-Host "Global Tracking: On" }
     }
+
+    $Products = Get-WmiObject win32_product -ErrorAction Stop 
+    $Wmi | Add-Member -type NoteProperty -Name 'Products' -Value $Products
+
     Write-Host "`nInstalled BizTalk Software" -Fore DarkGray
     $Wmi.Products | where-object { $_.Name -like "*BizTalk*" } | select-object Name -Unique | Sort-Object Name | Select-Object -expand Name
 }
 
 function HostInstances($Wmi)
 {
+    $HostInstances = Get-WmiObject MSBTS_HostInstance -namespace root\MicrosoftBizTalkServer -ErrorAction Stop 
+    $Wmi | Add-Member -type NoteProperty -Name 'HostInstances' -Value $HostInstances
+
     Write-Host "`nHost Instance Information ("$Wmi.HostInstances.Count")" -fore DarkGray
     
     foreach ($hostInstance in $Wmi.HostInstances) {
@@ -139,19 +97,37 @@ function HostInstances($Wmi)
         else {
             if ($hostInstanceType -eq "In-process") {
                 Write-Host $hostInstance.hostname "($hostInstanceType)" "- " -NoNewline
-                Write-Host $hostInstanceState "(Disabled:$($hostInstance.IsDisabled))" -fore DarkYellow
+                Write-Host $hostInstanceState "(Disabled:$($hostInstance.IsDisabled))" -fore Yellow
             }
             else {
                 Write-Host $hostInstance.hostname "($hostInstanceType)"
             }
         }
     }
+
+    $TrackingHost = Get-WmiObject MSBTS_Host -Namespace root\MicrosoftBizTalkServer -ErrorAction Stop  | Where-Object {$_.HostTracking -eq "true" }
+    $Wmi | Add-Member -type NoteProperty -Name 'TrackingHost' -Value $TrackingHost
+
     Write-Host "`nTracking Host(s)" -Fore DarkGray
     $Wmi.TrackingHost.Name
 }
 
 function Applications($Wmi)
 {
+    Add-Type -Path ".\Microsoft.RuleEngine.dll"
+    Add-Type -Path ".\Microsoft.Biztalk.RuleEngineExtensions.dll"
+    Add-Type -Path ".\Microsoft.BizTalk.ExplorerOM.dll"
+    [void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.BizTalk.ExplorerOM")
+    $BizTalkDBInstance = $Wmi.BizTalkGroup.MgmtDbServerName
+    $BizTalkDB = $Wmi.BizTalkGroup.MgmtDbName
+
+    # $Wmi | Add-Member -type NoteProperty -Name 'BizTalkDBInstance' -Value $BizTalkDBInstance
+    # $Wmi | Add-Member -type NoteProperty -Name 'BizTalkDB' -Value $BizTalkDB
+
+    $BizTalkOM = New-Object Microsoft.BizTalk.ExplorerOM.BtsCatalogExplorer
+    $BizTalkOM.ConnectionString = "SERVER=$BizTalkDBInstance;DATABASE=$BizTalkDB;Integrated Security=SSPI"
+    $Wmi | Add-Member -type NoteProperty -Name 'BizTalkOM' -Value $BizTalkOM
+
     # Get BizTalk Application Information
     $applications = $Wmi.BizTalkOM.Applications
 
@@ -160,37 +136,62 @@ function Applications($Wmi)
 
     Foreach ($application in $applications) 
     {
+        Write-Host $application.Name "- " -NoNewline
+
         if ($application.Status -eq "Started") {
-            Write-Host $application.Name "- " -NoNewline
             Write-Host $application.Status -fore Green
         }
         elseif ($application.Status -eq "Stopped") {
-            Write-Host $application.Name "- " -NoNewline
             Write-Host $application.Status -fore Red
         }
         else {
-            Write-Host $application.Name "- " -NoNewline
-            Write-Host $application.Status -fore DarkYellow
+            Write-Host $application.Status -fore Yellow
         }
     }
 }
 
 function ServiceInstances($Wmi)
 {
+    #Service Instance Mining
+    # Get BizTalk Service Instance Information
+    [Array]$ReadyToRun = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 1)' -ErrorAction SilentlyContinue 
+    [Array]$Active = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 2) and not(ServiceClass = 16)' -ErrorAction SilentlyContinue 
+    [Array]$Dehydrated = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 8)' -ErrorAction SilentlyContinue 
+    [Array]$Breakpoint = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceStatus = 64)' -ErrorAction SilentlyContinue 
+    [Array]$SuspendedOrchs = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 1) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue 
+    [Array]$SuspendedMessages = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 4) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue 
+    [Array]$SuspendedRouting = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 64)' -ErrorAction SilentlyContinue 
+    [Array]$SuspendedIsolated = Get-WmiObject MSBTS_ServiceInstance -namespace 'root\MicrosoftBizTalkServer' -filter '(ServiceClass = 32) and (ServiceStatus = 4 or ServiceStatus = 32)' -ErrorAction SilentlyContinue 
+
+    $ServiceInstances = New-Object PSObject
+    $ServiceInstances | Add-Member -type NoteProperty -Name 'ReadyToRun' -Value $ReadyToRun
+    $ServiceInstances | Add-Member -type NoteProperty -Name 'Active' -Value $Active
+    $ServiceInstances | Add-Member -type NoteProperty -Name 'Dehydrated' -Value $Dehydrated
+    $ServiceInstances | Add-Member -type NoteProperty -Name 'Breakpoint' -Value $Breakpoint
+    $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedOrchs' -Value $SuspendedOrchs
+    $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedMessages' -Value $SuspendedMessages
+    $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedRouting' -Value $SuspendedRouting
+    $ServiceInstances | Add-Member -type NoteProperty -Name 'SuspendedIsolated' -Value $SuspendedIsolated
+
+    $Wmi | Add-Member -type NoteProperty -Name 'ServiceInstances' -Value $ServiceInstances
+
     # Display BizTalk Service Instance Information
-Write-Host "`nService Instance Information" -fore DarkGray
-Write-Host "Instances Ready to Run:" $Wmi.ServiceInstances.ReadyToRun.Count
-Write-Host "Active Instances:" $Wmi.ServiceInstances.Active.Count
-Write-Host "Dehydrated Instances:" $Wmi.ServiceInstances.Dehydrated.Count
-Write-Host "Instances in Breakpoint:" $Wmi.ServiceInstances.Breakpoint.Count
-Write-Host "Suspended Orchestrations:" $Wmi.ServiceInstances.SuspendedOrchs.count
-Write-Host "Suspended Messages:" $Wmi.ServiceInstances.SuspendedMessages.count
-Write-Host "Routing Failures:" $Wmi.ServiceInstances.SuspendedRouting.count
-Write-Host "Isolated Adapter Failures:" $Wmi.ServiceInstances.SuspendedIsolated.count
+    Write-Host "`nService Instance Information" -fore DarkGray
+    Write-Host "Instances Ready to Run:" $Wmi.ServiceInstances.ReadyToRun.Count
+    Write-Host "Active Instances:" $Wmi.ServiceInstances.Active.Count
+    Write-Host "Dehydrated Instances:" $Wmi.ServiceInstances.Dehydrated.Count
+    Write-Host "Instances in Breakpoint:" $Wmi.ServiceInstances.Breakpoint.Count
+    Write-Host "Suspended Orchestrations:" $Wmi.ServiceInstances.SuspendedOrchs.Count
+    Write-Host "Suspended Messages:" $Wmi.ServiceInstances.SuspendedMessages.Count
+    Write-Host "Routing Failures:" $Wmi.ServiceInstances.SuspendedRouting.Count
+    Write-Host "Isolated Adapter Failures:" $Wmi.ServiceInstances.SuspendedIsolated.Count
 }
 
 function ReceiveLocations($Wmi)
 {
+    [Array]$ReceiveLocations = Get-WmiObject MSBTS_ReceiveLocation -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue 
+    $Wmi | Add-Member -type NoteProperty -Name 'ReceiveLocations' -Value $ReceiveLocations
+
     Write-Host "`nReceive Locations (" $Wmi.ReceiveLocations.Count ")" -fore DarkGray
     
     if ($Wmi.ReceiveLocations.Count -gt 0) 
@@ -219,6 +220,9 @@ function ReceiveLocations($Wmi)
 
 function SendPorts($Wmi)
 {
+    [Array]$SendPorts = Get-WmiObject MSBTS_SendPort -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue 
+    $Wmi | Add-Member -type NoteProperty -Name 'SendPorts' -Value $SendPorts
+
     Write-Host "`nSend Ports (" $Wmi.SendPorts.Count ")" -fore DarkGray
     
     if ($Wmi.SendPorts.Count -gt 0) 
@@ -254,6 +258,9 @@ function SendPorts($Wmi)
 
 function Orchestrations($Wmi)
 {
+    [Array]$Orchestrations = Get-WmiObject MSBTS_Orchestration -namespace 'root\MicrosoftBizTalkServer' -ErrorAction SilentlyContinue 
+    $Wmi | Add-Member -type NoteProperty -Name 'Orchestrations' -Value $Orchestrations
+
     Write-Host "`nOrchestrations (" $Wmi.Orchestrations.Count ")" -fore DarkGray
     
     If ($Wmi.Orchestrations.Count -gt 0) 
@@ -265,7 +272,7 @@ function Orchestrations($Wmi)
             Switch($Orchestration.OrchestrationStatus)
             {
                 1 { Write-Host "Unbound" -fore White }
-                2 { Write-Host "Bound" -fore DarkYellow }
+                2 { Write-Host "Bound" -fore Yellow }
                 3 { Write-Host "Stopped" -fore Red }
                 4 { Write-Host "Started" -fore Green }
             }
@@ -356,30 +363,17 @@ function ProcessConfiguration ($configurationType, $Wmi)
     } 
 }
 
-function ReadConfigurationData ($HostConfiguration) 
+$WmiInterface = InitializeHostWmiProvider
+
+If($null -eq $WmiInterface)
 {
-    $HostName = $HostConfiguration.Name;
-
-    $WmiInterface = LoadHostWmiProviders($HostName);
-
-    If($null -eq $WmiInterface)
-    {
-        return;
-    }
-
-    Write-Host "${HostName}: BizTalk WMI providers loaded successfully." -fore Green
-
-    foreach($config in $HostConfiguration.Configurations)
-    {
-        ProcessConfiguration $config $WmiInterface #Syntax looks weird, but this is how it's done.
-    }
+    return;
 }
 
-foreach($BizTalkHost in $Config.Hosts)
+foreach($config in $Config.Configurations)
 {
-    ReadConfigurationData($BizTalkHost);
+    ProcessConfiguration $config $WmiInterface #Syntax looks weird, but this is how it's done.
 }
-
 
 
 

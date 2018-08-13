@@ -4,3 +4,6 @@ Applications
 ServiceInstances
 ReceiveLocations
 SendPorts
+Orchestrations
+MSDTC
+Network
